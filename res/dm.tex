@@ -89,11 +89,10 @@ Signal & Signal Description & Size & P/S & D & From 		& To & Bits trame & Charge
 53 & Main Contactor Ack. & 1 & S & 20 & V/C & I/M C 		& 55 & 0.55\% \\ \hline
 \end{tabular} \\
 
-La charge totale maximum est la somme de ces charges, soit 26.35\%.
+La charge réseau totale maximum est la somme de ces charges, soit 26.35\%.
 
 \subsection{}
-\todo{}
-
+Le signal le plus critique est sans doute le signal 19 : Emergency brake. Si on lui affecte la priorité maximale, c'est à dire l'identifiant le plus faible, on obtient une latence maximale qui correspond à la longueur du message le plus long, c'est à dire $128\mu s$ (dans le cas ou un message de 8 bits vient d'être envoyé).
 
 \section{Bus LIN}
 
@@ -104,7 +103,7 @@ Le bus LIN est moins coûteux que le bus CAN, mais également moins fiable ; c'e
 La transmission sur le bus LIN est déterministe, le temps de réponse est garanti lorsqu'on envoie un message.
 
 \subsection{}
-On compte environ 10 bits par subdivision sur la capture d'écran, soit $10~bits/ms = 10~kbit/s$
+On compte environ 10 bits par subdivision sur la capture d'écran, soit $10~bits/ms = 10~kbit/s$.
 
 \subsection{}
 Le premier champ sert à marquer le début d'une trame.
@@ -121,12 +120,12 @@ Le dernier champ est un checksum, qui est calculé à partir des données envoy�
 \section{Flexray et Ethernet embarqué}
 
 \subsection{}
-Le bus CAN présente des limites de débit qui sont handicapantes pour certains flux tels que la vidéo.
+Le bus CAN présente des limites de débit qui sont handicapantes pour certains flux tels que la vidéo. Le principal avantage de Flexray et Ethernet est donc le débit, qui peut aller jusqu'à 1Gbps pour l'Ethernet. Une autre problématique est celle du déterminisme “dur”, qui permet de garantir l’envoi des messages dans un temps donné, et qui n’est pas possible avec le bus CAN. 
 
 \subsection{}
-
+Flexray est plus déterministe que CAN, mais son débit est également limité à la dizaine de megabits par seconde. La technologie Flexray est également très chère, alors qu’Ethernet embarqué se base sur l’Ethernet utilisé dans la plupart des réseaux informatiques (ce qui permet de capitaliser sur l’expérience déjà accumulée et de diminuer les coûts des composants), et permet des débits allant jusqu’au gigabit par seconde.
 
 \subsection{}
-
+La principale différence est l’utilisation de switches Full Duplex, qui permettent d’assurer l’absence de collisions (contrairement au CSMA/CD habituellement utilisé). Les connections se font par des Virtual Links, dont l’identifiant est stocké dans l’en-tête IP, ce qui permet d’aller vers plus de déterminisme.
 
 \end{document}
