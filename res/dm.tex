@@ -1,0 +1,132 @@
+\documentclass[a4paper]{article}
+\usepackage[margin=3cm]{geometry}
+\usepackage[french]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{schemabloc}
+\usepackage[colorinlistoftodos]{todonotes}
+
+\title{Réseaux embarqués - DM}
+
+\author{Corentin Smith}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+
+
+\section{Architecture du réseau embarqué}
+
+\subsection{}
+Trois types de bus CAN sont généralement présents dans une voiture :
+\begin{description}
+  \item[le CAN Drivetrain] ou CAN powertrain est utilisé pour les fonctions critiques telles que les contrôles moteurs, ou la direction.
+  \item[le CAN Convenience] est utilisé pour les fonctions non critiques, mais importantes : par exemple l'ouverture des portes.
+  \item[le CAN Infotainment] est utilisé pour les fonctions accessoires, telles que l'autoradio ou la climatisation.
+\end{description}
+
+\subsection{}
+Le déterminisme d'un bus est la propriété qu'il a de garantir l'acheminement des messages dans un temps borné. Le bus CAN est appelé déterministe \emph{mou}, car les messages peuvent être envoyés à des temps non prédéterminés. On peut avoir un phénomème de remplissage du bus par des messages de haute priorité, qui peut être mitigé par la détermination des intervalles d'envoi par les noeuds et par la technique de l'inhibition (on interdit à un noeud de parler pendant un certain temps après l'envoi d'un message).
+
+\subsection{}
+On calcule la longueur maximale du réseau powertrain en se plaçant dans le cas où deux noeuds envoient un message quasiment en même temps (un bit de décalage).
+Lorsque le deuxième noeud reçoit le message du premier, il doit pouvoir choisir de s'arrêter d'émettre en un temps inférieur à environ la moitié du temps nécessaire à l'émission d'un bit.
+Le temps de transmission d'un bit est de $t_{bit} = 1/500kb/s = 2\mu s$. La vitesse de propagation de l'onde dans le réseau est d'environ $c = 2.10^{8} m/s$.
+On doit donc avoir
+\begin{align*}
+t_{prop} < \frac{t_{bit}}{2} \\
+\frac{2L}{c} < \frac{t_{bit}}{2} \\
+L < \frac{c \cdot t_{bit}}{4} \\
+L < 100m
+\end{align*}
+
+\subsection{}
+On peut envisager une petite augmentation du débit, mais la formule précédente montre que la longueur maximum du réseau est inversement proportionnelle au débit ($L_{max} = \frac{c}{4 \cdot d}$ avec $d$ le débit), ce qui donne par exemple une longueur maximum de 10m si on voulait passer à 5mbit/s.
+  
+\section{Estimation de la charge réseau}
+
+\subsection{}
+La trame la plus longue a une charge utile de 8 bits, ce qui donne une longueur totale de $1+11+1+6+\emph{8}+15+1+1+1+7+3+9 = 64$ bits en comptant 9 bits de stuffing (dans le pire des cas).
+
+\subsection{}
+Les bits de stuffing servent à générer des fronts montants et descendants dans la trame afin de pouvoir synchroniser les horloges sur ces fronts.
+
+\subsection{}
+La durée de la trame sera de $2\mu s \cdot 64 = 128 \mu s$. La charge réseau générée par un tel message envoyé toutes les 100ms serait de $128 \mu s / 100 ms = 0.13\%$
+
+\subsection{}
+L'identifiant sert à définir la nature du message et à déterminer la priorité lors de conflits. Les messages non prioritaires ont des identifiants plus élevés.
+
+\subsection{}
+On a 4 types de messages, la charge utile variant entre 1, 2, 3, et 8 bits. Par le même calcul que précédemment, on obtient des durées de respectivement $110\mu s$, $112\mu s$, $116\mu s$, et $128\mu s$.\\
+
+\begin{tabular}{|p{0.8cm}|p{4cm}|p{0.8cm}|p{0.8cm}|p{0.8cm}|p{1cm}|p{1cm}|p{1cm}|p{1cm}|}
+\hline
+Signal & Signal Description & Size & P/S & D & From 		& To & Bits trame & Charge max \\ \hline
+7 & Accelerator Position & 8 & P & 5 & Driver & V/C 		& 64 & 2.56\% \\ \hline
+8 & Brake P., Master Cylinder & 8 & P & 5 & Brakes & V/C& 64 & 2.56\% \\ \hline
+9 & Brake Pressure, Line & 8 & P & 5 & Brakes & V/C 		& 64 & 2.56\% \\ \hline
+11 & T. Clutch Line Pressure & 8 & P & 5 & Trans & V/C 	& 64 & 2.56\% \\ \hline
+17 & Accelerator Switch & 2 & S & 20 & Driver & V/C 		& 56 & 0.56\% \\ \hline
+18 & Brake Switch & 1 & S & 20 & Brakes & V/C 			& 55 & 0.55\% \\ \hline
+19 & Emergency Brake & 1 & S & 20 & Driver & V/C 		& 55 & 0.55\% \\ \hline
+20 & Shift Lever (PRNDL) & 3 & S & 20 & Driver & V/C 	& 58 & 0.58\% \\ \hline
+22 & Speed Control & 3 & S & 20 & Driver & V/C 			& 58 & 0.58\% \\ \hline
+31 & R. and 2nd Gear Clutches & 2 & S & 20 & V/C & Trans& 56 & 0.56\% \\ \hline
+37 & Brake Solenoid & 1 & S & 20 & V/C & Brakes 			& 55 & 0.55\% \\ \hline
+38 & Backup Alarm & 1 & S & 20 & V/C & Brakes 			& 55 & 0.55\% \\ \hline
+41 & Main Contactor Close & 1 & S & 20 & I/M C & V/C 	& 55 & 0.55\% \\ \hline
+42 & Torque Command & 8 & P & 5 & V/C & I/M C 			& 64 & 2.56\% \\ \hline
+43 & Torque Measured & 8 & P & 5 & I/M C & V/C 			& 64 & 2.56\% \\ \hline
+44 & FWD/REV & 1 & S & 20 & V/C & I/M C 					& 55 & 0.55\% \\ \hline
+45 & FWD/REV Ack, & 1 & S & 20 & I/M C & V/C 			& 55 & 0.55\% \\ \hline
+48 & Shift in Progress & 1 & S & 20 & V/C & I/M C 		& 55 & 0.55\% \\ \hline
+49 & Processed Motor Speed & 8 & P & 5 & I/M C & V/C 	& 64 & 2.56\% \\ \hline
+50 & Inverter Temperature St. & 2 & S & 20 & I/M C & V/C& 56 & 0.56\% \\ \hline
+52 & Status/Malfunc. (TBD) & 8 & S & 20 & I/M C & V/C 	& 64 & 0.64\%  \\ \hline
+53 & Main Contactor Ack. & 1 & S & 20 & V/C & I/M C 		& 55 & 0.55\% \\ \hline
+\end{tabular} \\
+
+La charge totale maximum est la somme de ces charges, soit 26.35\%.
+
+\subsection{}
+\todo{}
+
+
+\section{Bus LIN}
+
+\subsection{}
+Le bus LIN est moins coûteux que le bus CAN, mais également moins fiable ; c'est pourquoi il est utilisé pour des fonctions non critiques (allumage des lumières à l'intérieur de l'habitacle par exemple.
+
+\subsection{}
+La transmission sur le bus LIN est déterministe, le temps de réponse est garanti lorsqu'on envoie un message.
+
+\subsection{}
+On compte environ 10 bits par subdivision sur la capture d'écran, soit $10~bits/ms = 10~kbit/s$
+
+\subsection{}
+Le premier champ sert à marquer le début d'une trame.
+
+\subsection{}
+Le deuxième champ sert à synchroniser les horloges. La valeur envoyée est 0x55, ce qui permet d'avoir une succession de fronts à intervalle régulier.
+
+\subsection{}
+Le 3ème champ est le champ ID, qui sert à identifier le message envoyé. Cet identifiant est envoyé par le maître, ici le contrôleur du moteur.
+
+\subsection{}
+Le dernier champ est un checksum, qui est calculé à partir des données envoyées sur le reste de la trame (y compris le header à partir de LIN 2.0, et sur les données seules en LIN 1.3), et qui permet au maître de vérifier l'intégrité des données reçues. Le checksum est émis par l'esclave, ici le capteur de monoxyde.
+
+\section{Flexray et Ethernet embarqué}
+
+\subsection{}
+Le bus CAN présente des limites de débit qui sont handicapantes pour certains flux tels que la vidéo.
+
+\subsection{}
+
+
+\subsection{}
+
+
+\end{document}
