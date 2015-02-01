@@ -6,6 +6,7 @@
 \usepackage{graphicx}
 \usepackage{schemabloc}
 \usepackage[colorinlistoftodos]{todonotes}
+\usepackage{hyperref}
 
 \title{CSE - Asservissement en couple d'un moteur DC}
 
@@ -75,6 +76,10 @@ Les blocs assurent les fonctions suivantes :
 
 \subsection{Schéma électrique}
 
+La première partie du schéma transforme le signal de commande continu en PWM proportionnel à cette tension.
+
+Le pont en H permet de réaliser une amplification de puissance de la PWM. La tension efficace de cette PWM est proportionnelle à la largeur d'impulsion, et la vitesse de rotation du moteur est donc reliée directement à la tension de commande.
+
 \begin{figure}[h!]
 \centering
 	\includegraphics[width=1\textwidth]{schema}
@@ -105,6 +110,7 @@ La simulation théorique du circuit se fait à l'aide du logiciel iCircuit qui p
 	\caption{Simulation avec une commande de 15V}
 \end{figure}
 
+\newpage
 
 \subsection{Circuit}
 
@@ -113,6 +119,8 @@ La simulation théorique du circuit se fait à l'aide du logiciel iCircuit qui p
     \includegraphics[width=1\textwidth]{circuit}
   \caption{Le circuit réalisé}
 \end{figure}
+
+Nous avions prévu de réaliser le circuit avec un pont en H de TI, le LMD18245T \href{http://www.ti.com/lit/ds/symlink/lmd18245.pdf}{[lien]}, mais 
 
 \begin{figure}[h!]
   \centering
@@ -133,6 +141,8 @@ La simulation théorique du circuit se fait à l'aide du logiciel iCircuit qui p
 \end{figure}
 
 \subsection{Résultats}
+
+\newpage
 
 \section{Conclusion}
 
