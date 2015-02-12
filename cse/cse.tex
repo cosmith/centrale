@@ -50,15 +50,19 @@ On réalise une boucle d’asservissement en récupérant l’intensité dans le
 \sbBloc{reg}{Régulateur}{hach}
 \sbRelier[$U_h$]{hach}{reg}
 \sbBloc{mot}{Moteur}{reg}
-\sbRelier[u]{reg}{mot}
+\sbRelier[$u$]{reg}{mot}
 \sbSortie{S}{mot}
 \sbRelier[$I$]{mot}{S}
 \sbDecaleNoeudy[4]{S}{E}
 \sbBlocr{shunt}{Shunt}{E}
 \sbRelieryx{mot-S}{shunt}
-\sbRelierxy[$U_m$]{shunt}{comp}
+\sbBloc{gainshunt}{$K_s$}{E}
+\sbRelierxy[$U_s$]{shunt}{gainshunt}
+\sbRelierxy[$U_m$]{gainshunt}{comp}
 \end{tikzpicture}
 \end{center}
+
+\todo{FIXER Schema bloc}
 
 Les blocs assurent les fonctions suivantes :
 \begin{description}
@@ -76,8 +80,15 @@ Le pont en H permet de réaliser une amplification de puissance de la PWM. La te
 
 \begin{figure}[H]
 \centering
-	\includegraphics[width=1\textwidth]{schema}
-	\caption{Schéma électrique}
+	\includegraphics[width=1\textwidth]{schema.png}
+	\caption{Schéma électrique en boucle ouverte}
+\end{figure}
+
+
+\begin{figure}[H]
+\centering
+	\includegraphics[width=1\textwidth]{schema_boucle.png}
+	\caption{Schéma électrique bouclé}
 \end{figure}
 
 
@@ -87,7 +98,20 @@ Nous avions prévu de réaliser le circuit avec un pont en H de TI, le LMD18245T
 
 Les transistors que nous avons choisis sont des transistors de moyenne puissance, les BD237 (NPN) et BD238 (PNP) \href{http://www.onsemi.com/pub_link/Collateral/BD237-D.PDF}{[datasheet]}.
 
-Les amplificateurs opérationnels sont des LM324AN \href{https://www.fairchildsemi.com/datasheets/LM/LM324.pdf}{[datasheet]}. Nous avons également utilisé les amplificateurs opérationnels en tant que comparateurs afin de limiter le nombre de composants.
+Les amplificateurs opérationnels sont des LM324AN \href{https://www.fairchildsemi.com/datasheets/LM/LM324.pdf}{[datasheet]}. Nous avons également utilisé les amplificateurs opérationnels en tant que comparateurs afin de limiter le nombre de composants.\\
+
+Afin de déterminer la valeur du gain $K_s$ nécessaire en sortie de la boucle (entre la résistance de shunt et l'entrée du sommateur), nous avons réalisé une série de mesures de la tension aux bornes de la résistance de shunt.
+
+On obtient une courbe bien linéaire qui nous permet de déterminer la valeur de $K_s = 1/0.0166 = 60.24$. On a donc choisi pour les résistances $56k\Omega + 3.9k\Omega$ et $1k\Omega$ pour obtenir un rapport d'environ 60.
+
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=1\textwidth]{graph_shunt.png}
+	\caption{Relation entre commande et tension aux bornes de la résistance de shunt}
+\end{figure}
+
+
 
 \section{Réalisation}
 
@@ -95,22 +119,22 @@ Les amplificateurs opérationnels sont des LM324AN \href{https://www.fairchildse
 
 La simulation théorique du circuit se fait à l'aide du logiciel iCircuit qui permet une visualisation en temps réel des grandeurs physiques caractéristiques de chaque composant du circuit.
 
-Le circuit fonctionnant correctement en simulation, passons au montage concret.
+Pour ce qui est du bouclage, le modèle de moteur inclus dans le logiciel n'étant pas très réaliste, nous n'avons pas réalisé de simulation.
 
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1\textwidth]{simu0v}
-	\caption{Simulation avec une commande de 0V}
+	\caption{Simulation (boucle ouverte) avec une commande de 0V}
 \end{figure}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1\textwidth]{simu7v}
-	\caption{Simulation avec une commande de 7V}
+	\caption{Simulation (boucle ouverte) avec une commande de 7V}
 \end{figure}
 \begin{figure}[H]
 	\centering
 	\includegraphics[width=1\textwidth]{simu15v}
-	\caption{Simulation avec une commande de 15V}
+	\caption{Simulation (boucle ouverte) avec une commande de 15V}
 \end{figure}
 
 \subsection{Circuit}
