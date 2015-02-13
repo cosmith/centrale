@@ -19,7 +19,6 @@
 \begin{document}
 \maketitle
 
-\newpage
 \tableofcontents
 \newpage
 
@@ -27,7 +26,7 @@
 
 \subsection{Objectif}
 
-L'objectif de ce TP est de réaliser l'asservissement analogique en couple / courant d'un moteur DC, le but final étant de simuler un effort par l'axe du moteur. \\
+L'objectif de ce TP est de réaliser l'asservissement analogique en couple d'un moteur DC, le but final étant de simuler un effort par l'axe du moteur. \\
 Pour cela, nous mettrons en pratique un schéma d'asservissement standard avec en entrée une tension de commande $U_{c}$, représentative d'un couple désiré, et en sortie mesurée une tension image de l'intensité traversant le moteur.
 
 \subsection{Théorie}
@@ -165,7 +164,11 @@ Une plaque de carton plume a été fixée sur l'axe du moteur afin d'avoir une m
 
 \subsection{Résultats}
 
-Les résultats sont expliqués dans la vidéo de présentation. Voici quelques screenshots d'oscilloscope illustrant les entrées du pont en H et la tension imposée au moteur.
+Les résultats sont expliqués dans la vidéo de présentation. 
+
+L'asservissement fonctionne à peu près correctement, mais le réglage est très difficile : il faut jouer sur les valeurs des composants (résistances notamment). On pourrait penser à utiliser des résistances réglables, mais il serait sans doute plus judicieux d'utiliser un microcontrôleur afin de pouvoir réaliser des calculs permettant d'avoir un vrai contrôleur PID. On contrôlerait dans ce cas la PWM par le microcontrôleur, et on mesurerait l'intensité dans le moteur par la même méthode de la résistance de shunt.\\
+
+Voici quelques captures d'écrans d'oscilloscope illustrant les entrées du pont en H et la tension imposée au moteur.
 
 \begin{figure}[H]
   \centering
